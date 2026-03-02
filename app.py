@@ -7,6 +7,8 @@ import os
 from utils.geo import gps_to_local
 from data_sources.argo import get_argo_float
 
+CLOUD = os.environ.get("RENDER") == "true"
+
 app = Flask(__name__, static_folder="frontend", static_url_path="")
 CORS(app)
 
