@@ -1,0 +1,16 @@
+# Mac
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+
+# Large datasets
+data_sources/AIS_2024_01_01.csv
+*.csv
+
+# Captures
+captures/
+
+# cache
+*.log

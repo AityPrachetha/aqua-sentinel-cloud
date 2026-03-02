@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Threat Monitoring</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+/* ================= SAME HQ BACKGROUND ================= */
+body{
+font-family:'Orbitron',sans-serif;
+background:linear-gradient(135deg,#06121a,#0b1f2e);
+color:#9efcff;
+}
+
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background-image:
+linear-gradient(rgba(0,229,255,.05) 1px,transparent 1px),
+linear-gradient(90deg,rgba(0,229,255,.05) 1px,transparent 1px);
+background-size:40px 40px;
+pointer-events:none;
+}
+
+/* ================= GLASS ================= */
+.glass{
+background:rgba(255,255,255,.03);
+backdrop-filter:blur(12px);
+}
+
+.glow{
+box-shadow:
+0 0 20px rgba(0,229,255,.35),
+inset 0 0 10px rgba(0,229,255,.2);
+}
+
+/* ================= IMAGE CARD ================= */
+.imageCard{
+background:rgba(0,0,0,.4);
+padding:14px;
+border-radius:14px;
+border:1px solid rgba(0,229,255,.25);
+transition:.3s;
+}
+
+.imageCard:hover{
+transform:translateY(-5px);
+box-shadow:0 0 30px rgba(0,229,255,.35);
+}
+
+.imageCard img{
+width:100%;
+height:210px;
+object-fit:cover;
+border-radius:10px;
+}
+
+/* ================= NAV BUTTON ================= */
+.navBtn{
+background:rgba(0,229,255,0.08);
+border:1px solid rgba(0,229,255,0.3);
+padding:14px 28px;
+border-radius:18px;
+color:#9efcff;
+letter-spacing:1px;
+transition:.3s;
+box-shadow:0 0 20px rgba(0,229,255,.15);
+}
+
+.navBtn:hover{
+background:rgba(0,229,255,0.15);
+box-shadow:0 0 30px rgba(0,229,255,.5);
+transform:translateY(-4px);
+}
+
+</style>
+</head>
+
+
+<!-- ✅ BALANCED PAGE -->
+<body class="min-h-screen flex flex-col justify-start pt-14 text-cyan-200">
+
+<!-- ================= MAIN ================= -->
+<div class="max-w-6xl mx-auto px-6 space-y-8 w-full pb-28">
+
+<!-- HEADER -->
+<div class="flex justify-between items-center">
+
+<div>
+<h1 class="text-3xl font-bold text-cyan-300 tracking-widest">
+AQUA-SENTINEL
+</h1>
+<p class="text-xs text-cyan-500">
+Threat Surveillance Module
+</p>
+</div>
+
+<button onclick="loadCaptures()"
+class="glass glow px-6 py-2 rounded-lg text-cyan-300">
+LOAD CAPTURED IMAGES
+</button>
+
+</div>
+
+
+<!-- ================= IMAGE PANEL ================= -->
+<div class="glass glow p-6 rounded-3xl">
+
+<h2 class="text-lg text-cyan-300 mb-6 tracking-wider">
+📷 CAPTURED THREAT IMAGES
+</h2>
+
+<div id="imageContainer"
+class="grid grid-cols-3 gap-6">
+</div>
+
+</div>
+
+</div>
+
+
+<!-- ================= NAVBAR (IDENTICAL SYSTEM NAV) ================= -->
+<div class="fixed bottom-0 left-0 w-full flex justify-center pb-6 pointer-events-none">
+
+<div class="
+pointer-events-auto
+glass
+rounded-3xl
+px-12 py-5
+flex gap-12
+backdrop-blur-xl
+border border-cyan-500/20
+shadow-[0_0_60px_rgba(0,229,255,.25)]
+">
+
+<button onclick="location.href='/'" class="navBtn">
+🏠 HQ
+</button>
+
+<button onclick="location.href='/path.html'" class="navBtn">
+🗺 PATH PLAN
+</button>
+
+<button onclick="location.href='/threats.html'"
+class="navBtn shadow-[0_0_35px_#00e5ff]">
+📷 CAPTURES
+</button>
+
+<button onclick="location.href='/live_feed.html'" class="navBtn">
+📡 LIVE FEED
+</button>
+
+<button onclick="location.href='/ocean.html'" class="navBtn">
+🌊 OCEAN
+</button>
+
+</div>
+</div>
+
+
+<!-- ================= SCRIPT ================= -->
+<script>
+
+async function loadCaptures(){
+
+const container=document.getElementById("imageContainer");
+container.innerHTML="Loading images...";
+
+try{
+
+const res=await fetch("/captured_images");
+const data=await res.json();
+
+container.innerHTML="";
+
+if(data.length===0){
+container.innerHTML=
+"<p class='text-cyan-400'>No captured images found.</p>";
+return;
+}
+
+data.forEach(item=>{
+
+const card=document.createElement("div");
+card.className="imageCard";
+
+const img=document.createElement("img");
+img.src=item.image;
+img.alt="Captured Threat";
+
+card.appendChild(img);
+container.appendChild(card);
+
+});
+
+}catch(err){
+
+container.innerHTML=
+"<p class='text-red-400'>Failed to load images.</p>";
+
+console.error(err);
+}
+
+}
+
+</script>
+
+</body>
+</html>

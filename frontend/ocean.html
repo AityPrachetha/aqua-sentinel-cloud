@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>OCEAN MONITOR</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+
+/* ================= GLOBAL BACKGROUND ================= */
+body{
+font-family:'Orbitron',sans-serif;
+background:linear-gradient(135deg,#06121a,#0b1f2e);
+color:#9efcff;
+}
+
+/* GRID SAME AS HQ */
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background-image:
+linear-gradient(rgba(0,229,255,.05) 1px,transparent 1px),
+linear-gradient(90deg,rgba(0,229,255,.05) 1px,transparent 1px);
+background-size:40px 40px;
+pointer-events:none;
+}
+
+/* ================= METRICS ================= */
+.metric{
+padding:12px;
+border-radius:14px;
+background:rgba(0,0,0,.45);
+border:1px solid rgba(0,229,255,.25);
+text-align:center;
+}
+
+/* ================= CHART BOX ================= */
+.chartBox{
+height:250px;
+background:rgba(0,0,0,.35);
+border-radius:16px;
+padding:12px;
+box-shadow:
+0 0 20px rgba(0,229,255,.2),
+inset 0 0 10px rgba(0,229,255,.1);
+}
+
+/* ================= NAV BUTTON ================= */
+.navBtn{
+background:rgba(0,229,255,0.08);
+border:1px solid rgba(0,229,255,.35);
+padding:14px 28px;
+border-radius:18px;
+color:#9efcff;
+transition:.3s;
+}
+
+.navBtn:hover{
+box-shadow:0 0 25px #00e5ff;
+transform:translateY(-3px);
+}
+
+.activeBtn{
+box-shadow:0 0 35px #00e5ff;
+background:rgba(0,229,255,.2);
+}
+
+.glass{
+background:rgba(255,255,255,.03);
+backdrop-filter:blur(12px);
+}
+
+</style>
+</head>
+
+
+<!-- ✅ BALANCED PAGE -->
+<body class="min-h-screen flex flex-col justify-start pt-14">
+
+<!-- ================= MAIN ================= -->
+<div class="max-w-6xl mx-auto px-6 space-y-6 pb-28 w-full">
+
+<!-- HEADER -->
+<h1 class="text-3xl text-cyan-300 tracking-widest">
+🌊 OCEAN MONITOR ● LIVE
+</h1>
+
+<!-- ================= METRICS ================= -->
+<div class="grid grid-cols-6 gap-4">
+
+<div class="metric">Temp<br><span id="temp">--</span></div>
+<div class="metric">Pressure<br><span id="pressure">--</span></div>
+<div class="metric">Salinity<br><span id="salinity">--</span></div>
+<div class="metric">Current<br><span id="current">--</span></div>
+<div class="metric">Density<br><span id="density">--</span></div>
+<div class="metric">Depth<br><span id="depth">--</span></div>
+
+</div>
+
+<!-- ================= CHARTS ================= -->
+<div class="grid grid-cols-2 gap-6">
+
+<div class="chartBox">
+<canvas id="depthTempChart"></canvas>
+</div>
+
+<div class="chartBox">
+<canvas id="pressureChart"></canvas>
+</div>
+
+<div class="chartBox">
+<canvas id="salinityChart"></canvas>
+</div>
+
+<div class="chartBox">
+<canvas id="densityChart"></canvas>
+</div>
+
+</div>
+
+</div>
+
+
+<!-- ================= GLOBAL NAVBAR ================= -->
+<div class="fixed bottom-0 left-0 w-full flex justify-center pb-6 pointer-events-none">
+
+<div class="
+pointer-events-auto
+glass
+rounded-3xl
+px-12 py-5
+flex gap-12
+backdrop-blur-xl
+border border-cyan-500/20
+shadow-[0_0_60px_rgba(0,229,255,.25)]
+">
+
+<button onclick="location.href='/'" class="navBtn">
+🏠 HQ
+</button>
+
+<button onclick="location.href='/path.html'" class="navBtn">
+🗺 PATH PLAN
+</button>
+
+<button onclick="location.href='/threats.html'" class="navBtn">
+📷 CAPTURES
+</button>
+
+<button onclick="location.href='/live_feed.html'" class="navBtn">
+📡 LIVE FEED
+</button>
+
+<button class="navBtn activeBtn">
+🌊 OCEAN
+</button>
+
+</div>
+</div>
+
+
+<!-- ================= OCEAN SCRIPT ================= -->
+<script src="/ocean.js"></script>
+
+</body>
+</html>

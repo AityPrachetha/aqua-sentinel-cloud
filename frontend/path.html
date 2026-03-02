@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PATH PLANNING</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+/* ===== SAME BACKGROUND AS INDEX ===== */
+body{
+font-family:'Orbitron',sans-serif;
+background:linear-gradient(135deg,#06121a,#0b1f2e);
+}
+
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background-image:
+linear-gradient(rgba(0,229,255,.05) 1px,transparent 1px),
+linear-gradient(90deg,rgba(0,229,255,.05) 1px,transparent 1px);
+background-size:40px 40px;
+pointer-events:none;
+}
+
+/* ===== GLASS UI ===== */
+.glass{
+background:rgba(255,255,255,.03);
+backdrop-filter:blur(12px);
+}
+
+.glow{
+box-shadow:
+0 0 20px rgba(0,229,255,.35),
+inset 0 0 10px rgba(0,229,255,.2);
+}
+
+/* ===== NAV BUTTON ===== */
+.navBtn{
+background: rgba(0,229,255,0.08);
+border: 1px solid rgba(0,229,255,0.3);
+padding:14px 28px;
+border-radius:18px;
+color:#9efcff;
+letter-spacing:1px;
+transition:.3s;
+box-shadow:0 0 20px rgba(0,229,255,.15);
+}
+
+.navBtn:hover{
+background: rgba(0,229,255,0.15);
+box-shadow:0 0 30px rgba(0,229,255,.5);
+transform:translateY(-4px);
+}
+
+</style>
+</head>
+
+<!-- ✅ PERFECT CENTER BALANCE -->
+<body class="text-cyan-200 min-h-screen flex flex-col justify-start pt-14">
+
+<!-- ================= MAIN ================= -->
+<div class="max-w-5xl mx-auto px-6 space-y-6 w-full pb-28">
+
+<!-- HEADER -->
+<div class="flex justify-between items-center">
+
+<div>
+<h1 class="text-3xl text-cyan-300 tracking-widest">
+🗺 PATH PLANNING
+</h1>
+<p class="text-xs text-cyan-500">
+Intelligent Navigation • A* Algorithm
+</p>
+</div>
+
+<div class="flex items-center gap-3">
+
+<button onclick="simulate()"
+class="bg-cyan-500 text-black px-4 py-1 rounded glow text-sm">
+▶ Simulate
+</button>
+
+<button onclick="resetPath()"
+class="border border-cyan-400 px-4 py-1 rounded text-sm">
+Reset
+</button>
+
+<span id="status" class="text-green-400 text-sm">
+Ready
+</span>
+
+</div>
+</div>
+
+<!-- INPUT PANEL -->
+<div class="glass glow p-4 rounded-xl grid grid-cols-4 gap-3">
+
+<input id="startLat" placeholder="Start Latitude"
+class="bg-black/40 p-2 rounded text-sm"/>
+
+<input id="startLon" placeholder="Start Longitude"
+class="bg-black/40 p-2 rounded text-sm"/>
+
+<input id="goalLat" placeholder="Goal Latitude"
+class="bg-black/40 p-2 rounded text-sm"/>
+
+<input id="goalLon" placeholder="Goal Longitude"
+class="bg-black/40 p-2 rounded text-sm"/>
+
+<button onclick="generatePath()"
+class="col-span-4 bg-green-500 text-black py-2 rounded glow">
+Generate Path
+</button>
+
+</div>
+
+<!-- ✅ CENTERED MAP -->
+<div class="glass glow rounded-3xl p-6 flex justify-center">
+
+<canvas id="grid"
+width="520"
+height="520"
+class="rounded-xl shadow-[0_0_40px_rgba(0,229,255,.3)]">
+</canvas>
+
+</div>
+
+</div>
+
+
+<!-- ================= GLOBAL NAV (IDENTICAL TO INDEX) ================= -->
+<div class="fixed bottom-0 left-0 w-full flex justify-center pb-6 pointer-events-none">
+
+<div class="
+pointer-events-auto
+glass
+rounded-3xl
+px-12 py-5
+flex gap-12
+backdrop-blur-xl
+border border-cyan-500/20
+shadow-[0_0_60px_rgba(0,229,255,.25)]
+">
+
+<button onclick="location.href='/'" class="navBtn">
+🏠 HQ
+</button>
+
+<button onclick="location.href='/path.html'"
+class="navBtn shadow-[0_0_35px_#00e5ff]">
+🗺 PATH PLAN
+</button>
+
+<button onclick="location.href='/threats.html'" class="navBtn">
+📷 CAPTURES
+</button>
+
+<button onclick="location.href='/live_feed.html'" class="navBtn">
+📡 LIVE FEED
+</button>
+
+<button onclick="location.href='/ocean.html'" class="navBtn">
+🌊 OCEAN
+</button>
+
+</div>
+</div>
+
+<!-- ================= YOUR ORIGINAL JS (UNCHANGED) ================= -->
+<script>
+/* ✅ YOUR ENTIRE PATH ALGORITHM CODE REMAINS EXACTLY SAME */
+/* (No logic modified — only UI balanced) */
+
+const canvas=document.getElementById("grid");
+const ctx=canvas.getContext("2d");
+
+const GRID=40;
+const CELL=canvas.width/GRID;
+
+let grid=[];
+let robot={x:2,y:2};
+let goal={x:35,y:35};
+let path=[];
+let animationIndex=0;
+
+function initGrid(){
+grid=[];
+for(let i=0;i<GRID;i++){
+grid[i]=[];
+for(let j=0;j<GRID;j++) grid[i][j]=0;
+}
+}
+
+function convert(lat,lon){
+const originLat=32.40;
+const originLon=-41.25;
+const scale=200;
+
+let x=Math.floor((lon-originLon)*scale+GRID/2);
+let y=Math.floor((lat-originLat)*scale+GRID/2);
+
+return{
+x:Math.max(1,Math.min(GRID-2,x)),
+y:Math.max(1,Math.min(GRID-2,y))
+};
+}
+
+/* ---- Remaining A* code unchanged ---- */
+
+function heuristic(a,b){
+return Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
+}
+
+function getNeighbors(node){
+const dirs=[
+{x:1,y:0},{x:-1,y:0},
+{x:0,y:1},{x:0,y:-1},
+{x:1,y:1},{x:-1,y:-1},
+{x:1,y:-1},{x:-1,y:1}
+];
+
+let neighbors=[];
+dirs.forEach(d=>{
+let nx=node.x+d.x;
+let ny=node.y+d.y;
+if(nx>=0&&nx<GRID&&ny>=0&&ny<GRID)
+neighbors.push({x:nx,y:ny});
+});
+return neighbors;
+}
+
+function aStar(start,goal){
+let open=[start];
+let cameFrom={},gScore={},fScore={};
+
+gScore[`${start.x},${start.y}`]=0;
+fScore[`${start.x},${start.y}`]=heuristic(start,goal);
+
+while(open.length){
+open.sort((a,b)=>fScore[`${a.x},${a.y}`]-fScore[`${b.x},${b.y}`]);
+let current=open.shift();
+
+if(current.x===goal.x&&current.y===goal.y){
+let total=[current];
+while(`${current.x},${current.y}` in cameFrom){
+current=cameFrom[`${current.x},${current.y}`];
+total.unshift(current);
+}
+return total;
+}
+
+getNeighbors(current).forEach(n=>{
+let cost=(n.x!==current.x&&n.y!==current.y)?1.4:1;
+let tentative=gScore[`${current.x},${current.y}`]+cost;
+let key=`${n.x},${n.y}`;
+
+if(!(key in gScore)||tentative<gScore[key]){
+cameFrom[key]=current;
+gScore[key]=tentative;
+fScore[key]=tentative+heuristic(n,goal);
+if(!open.find(o=>o.x===n.x&&o.y===n.y))
+open.push(n);
+}
+});
+}
+return[];
+}
+
+function generatePath(){
+initGrid();
+
+robot=convert(
+parseFloat(startLat.value),
+parseFloat(startLon.value)
+);
+
+goal=convert(
+parseFloat(goalLat.value),
+parseFloat(goalLon.value)
+);
+
+path=aStar(robot,goal);
+animationIndex=0;
+draw();
+}
+
+function draw(){
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+for(let x=0;x<GRID;x++){
+for(let y=0;y<GRID;y++){
+ctx.fillStyle="#0b2a3a";
+ctx.fillRect(x*CELL,y*CELL,CELL,CELL);
+ctx.strokeStyle="rgba(0,255,255,0.03)";
+ctx.strokeRect(x*CELL,y*CELL,CELL,CELL);
+}
+}
+
+ctx.strokeStyle="#00ff88";
+ctx.lineWidth=2;
+ctx.beginPath();
+
+if(path.length)
+ctx.moveTo(path[0].x*CELL+CELL/2,path[0].y*CELL+CELL/2);
+
+for(let i=1;i<animationIndex;i++)
+ctx.lineTo(path[i].x*CELL+CELL/2,path[i].y*CELL+CELL/2);
+
+ctx.stroke();
+
+ctx.fillStyle="cyan";
+ctx.beginPath();
+ctx.arc(robot.x*CELL+CELL/2,robot.y*CELL+CELL/2,5,0,Math.PI*2);
+ctx.fill();
+
+ctx.fillStyle="yellow";
+ctx.beginPath();
+ctx.arc(goal.x*CELL+CELL/2,goal.y*CELL+CELL/2,6,0,Math.PI*2);
+ctx.fill();
+}
+
+function simulate(){
+if(!path.length){
+status.innerText="Generate Path First";
+return;
+}
+
+animationIndex=0;
+
+(function animate(){
+if(animationIndex<path.length){
+robot=path[animationIndex++];
+draw();
+setTimeout(animate,20);
+}else{
+status.innerText="Destination Reached";
+}
+})();
+}
+
+function resetPath(){
+animationIndex=0;
+draw();
+}
+
+initGrid();
+draw();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AQUA-SENTINEL – Underwater Surveillance Robot</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+body{
+font-family:'Orbitron',sans-serif;
+background:linear-gradient(135deg,#06121a,#0b1f2e);
+}
+
+/* ===== FUTURISTIC NAV BUTTON ===== */
+
+.navBtn{
+ background: rgba(0,229,255,0.08);
+ border: 1px solid rgba(0,229,255,0.3);
+ padding: 14px 28px;
+ border-radius: 18px;
+ color:#9efcff;
+ font-family:'Orbitron',sans-serif;
+ letter-spacing:1px;
+ transition:0.3s ease;
+ box-shadow:0 0 20px rgba(0,229,255,.15);
+}
+
+.navBtn:hover{
+ background: rgba(0,229,255,0.15);
+ box-shadow:0 0 30px rgba(0,229,255,.5);
+ transform:translateY(-4px);
+}
+
+/* GRID BACKGROUND */
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background-image:
+linear-gradient(rgba(0,229,255,.05) 1px,transparent 1px),
+linear-gradient(90deg,rgba(0,229,255,.05) 1px,transparent 1px);
+background-size:40px 40px;
+pointer-events:none;
+}
+
+.glass{
+background:rgba(255,255,255,.03);
+backdrop-filter:blur(12px);
+}
+
+.glow{
+box-shadow:0 0 20px rgba(0,229,255,.4),
+inset 0 0 12px rgba(0,229,255,.2);
+}
+
+.btnGlow:hover{
+box-shadow:0 0 25px #00e5ff;
+transform:translateY(-3px);
+transition:.3s;
+}
+</style>
+</head>
+
+<body class="text-cyan-200 min-h-screen flex flex-col justify-start pt-16"></body>
+
+<!-- ================= MAIN ================= -->
+<div class="max-w-6xl mx-auto px-6 py-10 space-y-6 w-full">
+
+<!-- HEADER -->
+<div class="flex justify-between items-center">
+<div>
+<h1 class="text-3xl font-bold text-cyan-300 tracking-widest">
+AQUA-SENTINEL
+</h1>
+<p class="text-xs text-cyan-500">
+Underwater Surveillance System v2.1
+</p>
+</div>
+
+<div class="text-green-400 flex items-center gap-2">
+<div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+ONLINE
+</div>
+</div>
+
+<!-- ================= RADAR ================= -->
+<div class="glass glow rounded-3xl p-6 max-w-3xl mx-auto">
+
+<h2 class="text-lg text-cyan-300 mb-4">
+📡 SONAR DISPLAY
+</h2>
+
+<div class="flex justify-center">
+<canvas id="radar"
+width="280"
+height="280"
+class="rounded-full border border-cyan-500/30
+shadow-[0_0_40px_rgba(0,229,255,.3)]">
+</canvas>
+</div>
+
+</div>
+
+<!-- ================= STATS ================= -->
+<div class="grid grid-cols-2 gap-6 max-w-3xl mx-auto">
+
+<div class="glass glow rounded-2xl p-4 flex gap-4">
+<div>📍</div>
+<div>
+<p class="text-xs text-cyan-500">Longitude</p>
+<p id="lon" class="text-lg font-bold">--</p>
+</div>
+</div>
+
+<div class="glass glow rounded-2xl p-4 flex gap-4">
+<div>🌊</div>
+<div>
+<p class="text-xs text-cyan-500">Depth</p>
+<p id="depth" class="text-lg font-bold">--</p>
+</div>
+</div>
+
+<div class="glass glow rounded-2xl p-4 flex gap-4">
+<div>📌</div>
+<div>
+<p class="text-xs text-cyan-500">Latitude</p>
+<p id="lat" class="text-lg font-bold">--</p>
+</div>
+</div>
+
+<div class="glass glow rounded-2xl p-4 flex gap-4">
+<div>🌡</div>
+<div>
+<p class="text-xs text-cyan-500">Temperature</p>
+<p id="temp" class="text-lg font-bold">--</p>
+</div>
+</div>
+
+</div>
+
+</div>
+
+
+<!-- ================= BOTTOM NAV ================= -->
+<!-- ================= GLOBAL FUTURISTIC NAV ================= -->
+<div class="fixed bottom-0 left-0 w-full flex justify-center pb-6 pointer-events-none">
+
+<div class="
+pointer-events-auto
+glass
+rounded-3xl
+px-12 py-5
+flex gap-12
+backdrop-blur-xl
+border border-cyan-500/20
+shadow-[0_0_60px_rgba(0,229,255,.25)]
+">
+
+<button onclick="window.location.href='/'"
+class="navBtn">
+🏠 HQ
+</button>
+
+<button onclick="window.location.href='/path.html'"
+class="navBtn">
+🗺 PATH PLAN
+</button>
+
+<button onclick="window.location.href='/threats.html'"
+class="navBtn">
+📷 CAPTURES
+</button>
+
+<button onclick="window.location.href='/live_feed.html'"
+class="navBtn">
+📡 LIVE FEED
+</button>
+
+<button onclick="window.location.href='/ocean.html'"
+class="navBtn">
+🌊 OCEAN
+</button>
+
+</div>
+</div>
+<!-- ================= RADAR SCRIPT ================= -->
+<script>
+
+const radar=document.getElementById("radar");
+const ctx=radar.getContext("2d");
+const R=radar.width/2;
+const MAX_RANGE=6000;
+
+let sweep=0;
+
+/* ENVIRONMENT DATA */
+async function updateEnv(){
+ const res=await fetch("/argo");
+ const d=await res.json();
+
+ document.getElementById("lat").innerText=d.lat.toFixed(2)+"°";
+ document.getElementById("lon").innerText=d.lon.toFixed(2)+"°";
+ document.getElementById("depth").innerText=d.depth+" m";
+ document.getElementById("temp").innerText=d.temp.toFixed(1)+" °C";
+}
+
+/* TARGETS */
+async function updateTargets(){
+ const res=await fetch("/predict");
+ const data=await res.json();
+ drawRadar(data);
+}
+
+/* RADAR DRAW */
+function drawRadar(data){
+
+ctx.clearRect(0,0,radar.width,radar.height);
+
+ctx.fillStyle="#020b12";
+ctx.beginPath();
+ctx.arc(R,R,R,0,Math.PI*2);
+ctx.fill();
+
+/* rings */
+ctx.strokeStyle="#044";
+for(let i=1;i<=4;i++){
+ ctx.beginPath();
+ ctx.arc(R,R,(R*i)/4,0,Math.PI*2);
+ ctx.stroke();
+}
+
+/* cross */
+ctx.beginPath();
+ctx.moveTo(0,R);
+ctx.lineTo(radar.width,R);
+ctx.moveTo(R,0);
+ctx.lineTo(R,radar.height);
+ctx.stroke();
+
+/* sweep */
+sweep+=0.03;
+
+ctx.strokeStyle="#00ffaa";
+ctx.lineWidth=2;
+
+ctx.beginPath();
+ctx.moveTo(R,R);
+ctx.lineTo(
+ R+Math.cos(sweep)*R,
+ R+Math.sin(sweep)*R
+);
+ctx.stroke();
+
+/* robot */
+ctx.fillStyle="yellow";
+ctx.beginPath();
+ctx.arc(R,R,6,0,Math.PI*2);
+ctx.fill();
+
+/* targets */
+data.forEach(o=>{
+ const dist=Math.sqrt(o.x*o.x+o.z*o.z);
+ if(dist>MAX_RANGE) return;
+
+ const x=R+(o.x/MAX_RANGE)*R;
+ const y=R+(o.z/MAX_RANGE)*R;
+
+ ctx.fillStyle=
+  o.alert?"orange":
+  o.status==="THREAT"?"red":"lime";
+
+ ctx.beginPath();
+ ctx.arc(x,y,4,0,Math.PI*2);
+ ctx.fill();
+});
+}
+
+/* LOOPS */
+setInterval(updateEnv,2000);
+setInterval(updateTargets,1000);
+
+updateEnv();
+updateTargets();
+
+</script>
+
+</body>
+</html>

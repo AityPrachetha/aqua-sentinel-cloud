@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SLAM Mapping</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body{
+background:#06121a;
+color:#00e5ff;
+font-family:Orbitron;
+text-align:center;
+}
+
+canvas{
+background:#021018;
+border-radius:20px;
+box-shadow:0 0 40px cyan;
+margin:auto;
+display:block;
+}
+</style>
+</head>
+
+<body>
+
+<h1 class="text-4xl mt-6">SLAM MAPPING</h1>
+<p>Simultaneous Localization & Mapping</p>
+
+<br>
+
+<canvas id="slam" width="700" height="700"></canvas>
+
+<div class="flex justify-center gap-16 mt-6 text-xl">
+<div>
+Mapped Area<br>
+<span id="mapped">0</span>
+</div>
+
+<div>
+Obstacles<br>
+<span id="obstacles">0</span>
+</div>
+
+<div>
+Coverage<br>
+<span id="coverage">0%</span>
+</div>
+</div>
+
+<script src="slam.js"></script>
+
+</body>
+</html>

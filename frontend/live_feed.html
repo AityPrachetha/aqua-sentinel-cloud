@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LIVE SENSOR FEED</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+
+/* ================= GLOBAL BACKGROUND (HQ SAME) ================= */
+body{
+font-family:'Orbitron',sans-serif;
+background:linear-gradient(135deg,#06121a,#0b1f2e);
+color:#9efcff;
+}
+
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background-image:
+linear-gradient(rgba(0,229,255,.05) 1px,transparent 1px),
+linear-gradient(90deg,rgba(0,229,255,.05) 1px,transparent 1px);
+background-size:40px 40px;
+pointer-events:none;
+}
+
+/* ================= GLASS ================= */
+.glass{
+background:rgba(255,255,255,.03);
+backdrop-filter:blur(12px);
+}
+
+/* ================= STATUS ================= */
+.friendly-glow{
+box-shadow:0 0 25px rgba(0,255,200,.25);
+border:1px solid rgba(0,255,200,.5);
+}
+
+.threat-glow{
+box-shadow:0 0 25px rgba(255,0,0,.25);
+border:1px solid rgba(255,0,0,.6);
+}
+
+.status-dot{
+width:10px;
+height:10px;
+border-radius:50%;
+}
+
+.badge{
+padding:4px 14px;
+font-size:11px;
+border-radius:999px;
+letter-spacing:1.5px;
+}
+
+/* ================= NAV BUTTON ================= */
+.navBtn{
+background:rgba(0,229,255,0.08);
+border:1px solid rgba(0,229,255,0.3);
+padding:14px 28px;
+border-radius:18px;
+color:#9efcff;
+letter-spacing:1px;
+transition:.3s;
+box-shadow:0 0 20px rgba(0,229,255,.15);
+}
+
+.navBtn:hover{
+background:rgba(0,229,255,0.15);
+box-shadow:0 0 30px rgba(0,229,255,.5);
+transform:translateY(-4px);
+}
+
+</style>
+</head>
+
+
+<!-- ✅ BALANCED PAGE -->
+<body class="min-h-screen flex flex-col justify-start pt-14">
+
+<!-- ================= MAIN ================= -->
+<div class="w-full max-w-3xl mx-auto px-6 space-y-6 pb-28">
+
+<!-- HEADER -->
+<div class="flex justify-between items-center">
+
+<div class="flex items-center gap-3">
+<div class="text-2xl">📡</div>
+<h1 class="text-2xl text-cyan-300 tracking-widest">
+LIVE SENSOR FEED
+</h1>
+</div>
+
+<div id="objectCount"
+class="text-xs text-cyan-400 tracking-widest">
+0 OBJECTS DETECTED
+</div>
+
+</div>
+
+<!-- ================= CARDS ================= -->
+<div id="cardsContainer"
+class="space-y-4">
+</div>
+
+</div>
+
+
+<!-- ================= NAVBAR ================= -->
+<div class="fixed bottom-0 left-0 w-full flex justify-center pb-6 pointer-events-none">
+
+<div class="
+pointer-events-auto
+glass
+rounded-3xl
+px-12 py-5
+flex gap-12
+backdrop-blur-xl
+border border-cyan-500/20
+shadow-[0_0_60px_rgba(0,229,255,.25)]
+">
+
+<button onclick="location.href='/'" class="navBtn">
+🏠 HQ
+</button>
+
+<button onclick="location.href='/path.html'" class="navBtn">
+🗺 PATH PLAN
+</button>
+
+<button onclick="location.href='/threats.html'" class="navBtn">
+📷 CAPTURES
+</button>
+
+<button onclick="location.href='/live_feed.html'"
+class="navBtn shadow-[0_0_35px_#00e5ff]">
+📡 LIVE FEED
+</button>
+
+<button onclick="location.href='/ocean.html'" class="navBtn">
+🌊 OCEAN
+</button>
+
+</div>
+</div>
+
+
+<!-- ================= SENSOR SCRIPT ================= -->
+<script>
+
+async function loadFeed(){
+
+const res=await fetch("/predict");
+const data=await res.json();
+
+const container=document.getElementById("cardsContainer");
+container.innerHTML="";
+
+document.getElementById("objectCount").innerText =
+data.length+" OBJECTS DETECTED";
+
+data.forEach(obj=>{
+
+const card=document.createElement("div");
+const isThreat=obj.status==="THREAT";
+
+card.className=
+"glass rounded-xl p-4 flex justify-between items-center transition "+
+(isThreat?"threat-glow":"friendly-glow");
+
+/* LEFT */
+const left=document.createElement("div");
+left.className="space-y-1";
+
+const top=document.createElement("div");
+top.className="flex items-center gap-3";
+
+const dot=document.createElement("div");
+dot.className="status-dot";
+dot.style.backgroundColor=
+isThreat?"#ff3b3b":"#00ff9d";
+
+const id=document.createElement("div");
+id.innerText="ID-"+obj.id;
+id.className="text-cyan-300 tracking-widest text-sm";
+
+top.appendChild(dot);
+top.appendChild(id);
+
+const coords=document.createElement("div");
+coords.innerHTML=`
+<div class="text-xs text-cyan-500">X:
+<span class="text-cyan-200">${obj.x.toFixed(2)}</span></div>
+<div class="text-xs text-cyan-500">Y:
+<span class="text-cyan-200">${obj.y.toFixed(2)}</span></div>
+<div class="text-xs text-cyan-500">Z:
+<span class="text-cyan-200">${obj.z.toFixed(2)}</span></div>
+<div class="text-xs text-cyan-500">TEMP:
+<span class="text-cyan-200">${obj.temp.toFixed(1)} °C</span></div>
+`;
+
+left.appendChild(top);
+left.appendChild(coords);
+
+/* BADGE */
+const badge=document.createElement("div");
+badge.className=
+"badge "+
+(isThreat
+?"bg-red-500/20 text-red-400 border border-red-500"
+:"bg-green-500/20 text-green-400 border border-green-500");
+
+badge.innerText=obj.status;
+
+card.appendChild(left);
+card.appendChild(badge);
+
+container.appendChild(card);
+
+});
+
+}
+
+setInterval(loadFeed,2000);
+loadFeed();
+
+</script>
+
+</body>
+</html>
