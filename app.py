@@ -12,9 +12,16 @@ CLOUD = os.environ.get("RENDER") == "true"
 app = Flask(__name__, static_folder="frontend", static_url_path="")
 CORS(app)
 
-# ================= DATA =================
 
-trajectory = pd.read_csv("trajectory.csv")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+trajectory_path = os.path.join(BASE_DIR, "trajectory.csv")
+
+if os.path.exists(trajectory_path):
+    trajectory = pd.read_csv(trajectory_path)
+    print("trajectory.csv loaded successfully")
+else:
+    print("trajectory.csv not found — using empty dataframe")
+    trajectory = pd.DataFrame()
 CSV_PATH = "data_sources/ais_small.csv"
 
 ORIGIN_LAT = 35.0
